@@ -283,6 +283,57 @@ class Game {
             app.stage.addChild(container)
         }
 
+        //sohail
+        function showControls() {
+            status = -2
+            const controlsContainer = createContainer()
+            controlsContainer.x = 0
+            controlsContainer.y = 0
+            controlsContainer.zIndex = 9999
+            controlsContainer.addChild(createMenuBackground())
+
+            const label = createLabel(controlsContainer, "Controls", app.styles.h1, {
+                x: app.renderer.width / 2,
+                y: app.renderer.height * 0.3,
+                centered: true
+            })
+
+            const pause = createLabel(controlsContainer, "P: Pause/Resume game", app.styles.h2, {
+                x: app.renderer.width / 2,
+                y: app.renderer.height * 0.4,
+                centered: true
+            })
+            
+            const right = createLabel(controlsContainer, "=>: Turn rocket to right", app.styles.h2, {
+                x: app.renderer.width / 2,
+                y: app.renderer.height * 0.45,
+                centered: true
+            })
+            
+            const left = createLabel(controlsContainer, "<=: Turn rocket to left", app.styles.h2, {
+                x: app.renderer.width / 2,
+                y: app.renderer.height * 0.5,
+                centered: true
+            })
+            
+            const coffee = createLabel(controlsContainer, "C: Use coffee", app.styles.h2, {
+                x: app.renderer.width / 2,
+                y: app.renderer.height * 0.55,
+                centered: true
+            })
+
+            const backButton = createButton(controlsContainer, "Go Back", app.styles.h2, {
+                x: label.x,
+                y: app.renderer.height * 0.65,
+                centered: true
+            }, function () {
+                app.stage.removeChild(controlsContainer)
+                self.pauseGame()
+            })
+           
+            app.stage.addChild(controlsContainer)
+        }
+
         self.pauseGame = function () {
             status = -2
             const container = createContainer()
@@ -302,7 +353,7 @@ class Game {
             })
             const restartButton = createButton(container, "Restart", app.styles.h2, {
                 x: initx * 2,
-                y: inity + label.height * 1.2,
+                y: inity + label.height * 1.2 * 1.25,
                 centered: true
             }, function () {
                 app.stage.removeChild(container)
@@ -316,9 +367,20 @@ class Game {
             }, function () {
                 self.unpauseGame()
             })
-            createButton(container, "Exit", app.styles.h2, {
+
+            /* Sohail - Adding menu option - Controls*/
+            createButton(container, "Controls", app.styles.h2, {
                 x: initx * 2,
                 y: inity + label.height * 1.2 * 2 + restartButton.height * 2,
+                centered: true
+            }, function () {
+               app.stage.removeChild(container)
+               showControls()
+            })
+
+            createButton(container, "Exit", app.styles.h2, {
+                x: initx * 2,
+                y: inity + label.height * 1.2 * 3 + restartButton.height * 2,
                 centered: true
             }, function () {
                 app.game.destroy()
@@ -340,7 +402,7 @@ class Game {
             background.lineStyle(2, 0xFFFFFF, 1);
             background.alpha = 0.8
             background.beginFill(0xAA4F08, 1);
-            background.drawRoundedRect(initx, app.renderer.height * 0.25, app.renderer.width * 0.5, app.renderer.height * 0.4)
+            background.drawRoundedRect(initx, app.renderer.height * 0.25, app.renderer.width * 0.5, app.renderer.height * 0.45)
             background.endFill();
             return background;
         }
