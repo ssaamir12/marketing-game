@@ -283,7 +283,6 @@ class Game {
             app.stage.addChild(container)
         }
 
-        //sohail
         function showControls() {
             status = -2
             const controlsContainer = createContainer()
@@ -368,7 +367,6 @@ class Game {
                 self.unpauseGame()
             })
 
-            /* Sohail - Adding menu option - Controls*/
             createButton(container, "Controls", app.styles.h2, {
                 x: initx * 2,
                 y: inity + label.height * 1.2 * 2 + restartButton.height * 2,
