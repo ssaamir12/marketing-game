@@ -1,0 +1,203 @@
+<html>
+
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pixi.js/5.1.3/pixi.min.js"></script>
+</head>
+
+<body>
+    <canvas id="canvas" width="100%" height="100%" />
+    <script>
+        const canvas = document.getElementById("canvas");
+        let touchingPoints = []
+        const initialWidth = 1024
+        const initialHeight = 700
+
+        const app = new PIXI.Application({ view: canvas, width: initialWidth, height: initialHeight, backgroundColor: 0xFFFFFF });
+
+        document.body.appendChild(app.view);
+
+
+        app.loader
+            .add('rocket', 'textures/rocket.png')
+            .add('planet', 'textures/planet4.png')
+            .load((loader, resources) => {
+
+                const globalY = app.renderer.height / 3
+                const globalX = app.renderer.width / 3
+                const width = resources.rocket.texture.width / 4
+                const height = resources.rocket.texture.height / 4
+                const rocketX = -width / 2
+                const rocketY = -height / 2
+
+                const path = [
+                    new PIXI.Point(width * 0.55, 0),
+                    new PIXI.Point(width * 0.63, height * 0.05),
+                    new PIXI.Point(width * 0.70, height * 0.1),
+                    new PIXI.Point(width * 0.75, height * 0.15),
+                    new PIXI.Point(width * 0.78, height * 0.2),
+                    new PIXI.Point(width * 0.81, height * 0.25),
+                    new PIXI.Point(width * 0.83, height * 0.30),
+                    new PIXI.Point(width * 0.83, height * 0.45),
+                    new PIXI.Point(width * 0.78, height * 0.55),
+                    new PIXI.Point(width * 0.75, height * 0.60),
+                    new PIXI.Point(width * 0.73, height * 0.65),
+                    new PIXI.Point(width * 0.70, height * 0.70),
+                    new PIXI.Point(width * 0.30, height * 0.70),
+                    new PIXI.Point(width * (1 - 0.70), height * 0.70),
+                    new PIXI.Point(width * (1 - 0.73), height * 0.65),
+                    new PIXI.Point(width * (1 - 0.75), height * 0.60),
+                    new PIXI.Point(width * (1 - 0.78), height * 0.55),
+                    new PIXI.Point(width * (1 - 0.83), height * 0.45),
+                    new PIXI.Point(width * (1 - 0.83), height * 0.30),
+                    new PIXI.Point(width * (1 - 0.81), height * 0.25),
+                    new PIXI.Point(width * (1 - 0.78), height * 0.2),
+                    new PIXI.Point(width * (1 - 0.75), height * 0.15),
+                    new PIXI.Point(width * (1 - 0.70), height * 0.1),
+                    new PIXI.Point(width * (1 - 0.63), height * 0.05),
+                    new PIXI.Point(width * (1 - 0.55), height * 0.00),
+                    new PIXI.Point(width * 0.55, 0),
+                    new PIXI.Point(width * (1 - 0.55), height * 0.00),
+                ];
+                const pathsByAngle = {}
+
+                let container = new PIXI.Container();
+                container.x = globalX
+                container.y = globalY
+                let rocket = new PIXI.Sprite(resources.rocket.texture);
+                rocket.x = rocketX
+                rocket.y = rocketY
+                rocket.width = width
+                rocket.height = height
+                
+                container.addChild(rocket);
+                app.stage.addChild(container);
+                let initialRotation = container.rotation
+
+                const graphics = new PIXI.Graphics();
+                graphics.x = rocketX
+                graphics.y = rocketY
+                graphics.lineStyle(2, 0xFFFFFF, 1);
+                graphics.beginFill(0xAA4F08, 0.5);
+                graphics.alpha = 0
+                graphics.drawPolygon(path);
+                graphics.endFill();
+                container.addChild(graphics);
+
+                let planet = new PIXI.Sprite(resources.planet.texture);
+                planet.width = resources.planet.texture.width / 10
+                planet.height = resources.planet.texture.height / 10
+                planet.y = 0
+                planet.x = 0
+                app.stage.addChild(planet);
+
+                let auxs = []
+                let touching = false
+
+                window.addEventListener('keydown', function (e) {
+                    const delta = 5
+                    if (e.code == "ArrowRight") {
+                        planet.x += delta
+                    } else if (e.code == "ArrowLeft") {
+                        planet.x -= delta
+                    } else if (e.code == "ArrowUp") {
+                        planet.y -= delta
+                    } else if (e.code == "ArrowDown") {
+                        planet.y += delta
+                    } else if (e.code == "KeyP") {
+                        rocket.rotation += 0.25
+                    } else if (e.code == "KeyG") {
+
+                        const apath = [new PIXI.Point(realPosition(touchingPoints[0]).x, realPosition(touchingPoints[0]).y),
+                        new PIXI.Point(realPosition(touchingPoints[1]).x, realPosition(touchingPoints[1]).y),
+                        new PIXI.Point(planet.x + planet.width / 2, planet.y + planet.height / 2)]
+
+                    } else if (e.code == "KeyT") {
+                        auxs.forEach(t => app.stage.removeChild(t))
+                        auxs = []
+
+                    } else if (e.code == "KeyQ") {
+                        container.angle = container.angle + 10
+
+                        rotatePoints()
+                    } else if (e.code == "KeyE") {
+                        container.angle = container.angle - 10
+
+                        rotatePoints()
+                    }
+                })
+
+                function calculateTouch() {
+                    const planetMiddle = { x: planet.x + planet.width / 2, y: planet.y + planet.height / 2 }
+                    const radius = planet.width / 2
+                    
+                    let touches = false
+                    let i = 0
+
+                    const thePath = lastPath
+                    while (!touches && i < thePath.length - 2) {
+
+                        const a = distance(realPosition(thePath[i]), realPosition(thePath[i + 1]))
+                        const b = distance(realPosition(thePath[i]), planetMiddle)
+                        const c = distance(realPosition(thePath[i + 1]), planetMiddle)
+                        const sp = (a + b + c) / 2
+                        const area = Math.sqrt(sp * (sp - a) * (sp - b) * (sp - c))
+                        const dist = area * 2 / a
+                        const realDist = Math.max(dist, Math.min(b, c))
+                        const angle1 = Math.acos((Math.pow(a, 2) - Math.pow(b, 2) - Math.pow(c, 2)) / (-2 * b * c)) * 180 / Math.PI
+                        const angle2 = Math.acos((Math.pow(b, 2) - Math.pow(a, 2) - Math.pow(c, 2)) / (-2 * a * c)) * 180 / Math.PI
+                        const angle3 = Math.acos((Math.pow(c, 2) - Math.pow(b, 2) - Math.pow(a, 2)) / (-2 * b * a)) * 180 / Math.PI
+
+                        touches = dist <= radius && angle2 <= 110 && angle3 <= 110
+                        if (touches) {
+                            touchingPoints = [realPosition(thePath[i]), realPosition(thePath[i + 1])]
+                        }
+                        i += 1
+                    }
+
+                    touches = touches || distance(realPosition(thePath[0]), planetMiddle) <= radius
+                        || distance(realPosition(thePath[0]), planetMiddle) <= radius
+                        || distance(realPosition({ x: width * 0.30, y: height * 0.70 }), planetMiddle) <= radius
+                        || distance(realPosition({ x: width * 0.70, y: height * 0.70 }), planetMiddle) <= radius
+                    return touches
+                }
+
+                function realPosition(p) {
+                    return { x: p.x + rocket.x + container.x, y: p.y + rocket.y + container.y}
+                }
+
+                function distance(p1, p2) {
+                    return Math.sqrt(Math.pow(p2.y - p1.y, 2) + Math.pow(p2.x - p1.x, 2))
+                }
+
+                let lastPath = path
+                function rotatePoints() {
+
+                    const middlePoint = { x: (width / 2), y: (height / 2) }
+                    const b = distance(middlePoint, { x: 0, y: 0 })
+                    const gamma = Math.atan(middlePoint.y / middlePoint.x)
+                    const newX2 = b * Math.cos(gamma + container.rotation)
+                    const newY2 = b * Math.sin(gamma + container.rotation)
+                    const deltaX = newX2 - middlePoint.x
+                    const deltaY = newY2 - middlePoint.y
+
+                    lastPath = path.map(p => rotate(p, {x: deltaX, y: deltaY}))
+                    pathsByAngle[rocket.rotation] = lastPath
+
+                }
+
+                function rotate(p, deltas) {
+                    const a = distance({ x: p.x, y: p.y }, { x: 0, y: 0 })
+                    const alpha = container.rotation
+                    const clockRotation = alpha < 0
+
+                    const beta = Math.atan(p.y / p.x)
+                    const newX = a * Math.cos(beta + alpha)
+                    const newY = a * Math.sin(beta + alpha)
+
+                    return new PIXI.Point(newX - deltas.x, newY - deltas.y)
+                }
+            })
+    </script>
+</body>
+
+</html>
