@@ -56,7 +56,7 @@ app.loader
         app.planetsPrototypes = [
             //{ texture: resources.planet.texture, onCollision: "dizzy", key: "Dizzy", description: "Makes your rocket shake.", frequency: 25, maxratio: 10, minratio: 5 },
             { texture: resources.planet4.texture, onCollision: "removeTime", key: "10-second delay", description: "This shortens your timer by 10 seconds", frequency: 25, maxratio: 10, minratio: 5 },
-            { texture: resources.planet1.texture, onCollision: "lose", key: "Programme fail!", description: "Hitting this planet makes you lose the project entirely!", frequency: 25, maxratio: 3, minratio: 1 },
+            { texture: resources.planet1.texture, onCollision: "lose", key: "Programme fail!", description: "Hitting this planet makes you lose the project entirely!", frequency: 25, maxratio: 5, minratio: 3 },
             //{ texture: resources.planet3.texture, onCollision: "slow", key: "", description: "If you hit this, you’ll accrue so much technical debt, you’ll slow right down", frequency: 25, maxratio: 10, minratio: 7 },
             { texture: resources.planet2.texture, onCollision: "transparent", key: "Guiding arrow lost", description: "You'll lose sight of the project - your solution assurance arrow disappears", frequency: 25, maxratio: 7, minratio: 5 },
             { texture: resources.planet5.texture, onCollision: "inverse", key: "Controls are reversed", description: "Hitting this makes you lose direction – the controls are switched round!", frequency: 25, maxratio: 10, minratio: 5 },
