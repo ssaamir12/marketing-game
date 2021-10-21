@@ -76,8 +76,12 @@ class Game {
                     y: app.renderer.height * 0.9,
                     width: resources.BA.texture.width / 3000,
                     height: resources.BA.texture.height / 3000
+                },
+                    progress: {
+                    x: app.renderer.width * 0.4,
+                    y: app.renderer.height * 0.95
                 }
-            }, app.stage, moon, rocket)
+            }, app.stage, moon, rocket, app)
 
             app.stage.blockers.forEach(d => d.init())
             app.stage.recentlyCreatedBlockers = []
